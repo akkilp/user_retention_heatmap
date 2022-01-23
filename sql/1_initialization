@@ -1,0 +1,43 @@
+/* Both of the csv files are so similar, that we dont need two tables */
+
+/* 1. Create two temporary tables */
+CREATE TABLE temp_fp (
+	purchase_date		varchar(20),
+	user_id				varchar(10),
+	purchase_id			varchar(20),
+	venue_id			varchar(15),
+	product_line		varchar(20),
+	first_buy			boolean DEFAULT '1'
+);
+
+CREATE TABLE temp_p (
+	purchase_date		varchar(20),
+	user_id				varchar(10),
+	purchase_id			varchar(20),
+	venue_id			varchar(15),
+	product_line		varchar(20),
+	first_buy			boolean DEFAULT '0'
+);
+
+CREATE TABLE purchases (
+	id 					SERIAL,
+	purchase_date		date,
+	user_id				varchar(10),
+	purchase_id			varchar(20),
+	venue_id			varchar(15),
+	product_line		varchar(20),
+	first_buy			boolean
+)
+
+/* 2. Insert data to tables */
+
+COPY temp_fp(purchase_date, user_id, purchase_id, venue_id, product_line)
+FROM '/var/lib/postgresql/data/pgdata/first_purchases.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY temp_p(purchase_date, user_id, purchase_id, venue_id, product_line)
+FROM '/var/lib/postgresql/data/pgdata/purchases.csv'
+DELIMITER ','
+CSV HEADER;
+
