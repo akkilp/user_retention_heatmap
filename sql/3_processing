@@ -1,0 +1,75 @@
+--- Restaurants 
+WITH fp_cohorts AS (
+	SELECT
+		DATE_TRUNC('month', purchase_date) AS cohort_month,
+		user_id
+	FROM purchases f
+	WHERE f.first_buy = True
+	AND f.product_line  = 'Restaurant'
+	GROUP BY 1, 2
+	ORDER BY 1, 2
+), monthly_activity AS (
+	SELECT 
+		user_id,
+		(DATE_PART('month', purchase_date) - DATE_PART('month', cohort_month)) AS month_number
+	FROM purchases p
+	LEFT JOIN fp_cohorts USING(user_id)
+	GROUP BY 1, 2
+	ORDER BY 1, 2
+), cohort_size AS (
+	SELECT cohort_month, count(1) AS num_users
+	FROM fp_cohorts
+	GROUP BY 1
+	ORDER BY 1
+), retention_table AS (
+  SELECT
+    C.cohort_month,
+    A.month_number,
+    count(1) AS num_users
+  FROM monthly_activity A
+  LEFT JOIN fp_cohorts C USING(user_id)
+  GROUP BY 1, 2
+)
+
+--- Retail stores
+WITH fp_cohorts AS (
+	SELECT
+		DATE_TRUNC('month', purchase_date) AS cohort_month,
+		user_id
+	FROM purchases f
+	WHERE f.first_buy = True
+	AND f.product_line  = 'Retail store'
+	GROUP BY 1, 2
+	ORDER BY 1, 2
+), monthly_activity AS (
+	SELECT 
+		user_id,
+		(DATE_PART('month', purchase_date) - DATE_PART('month', cohort_month)) AS month_number
+	FROM purchases p
+	LEFT JOIN fp_cohorts USING(user_id)
+	GROUP BY 1, 2
+	ORDER BY 1, 2
+), cohort_size AS (
+	SELECT cohort_month, count(1) AS num_users
+	FROM fp_cohorts
+	GROUP BY 1
+	ORDER BY 1
+), retention_table AS (
+  SELECT
+    C.cohort_month,
+    A.month_number,
+    count(1) AS num_users
+  FROM monthly_activity A
+  LEFT JOIN fp_cohorts C USING(user_id)
+  GROUP BY 1, 2
+)
+
+SELECT
+  B.cohort_month,
+  S.num_users AS total_users,
+  B.month_number::int,
+  B.num_users::float * 100 / S.num_users AS percentage
+FROM retention_table B
+LEFT JOIN cohort_size S USING(cohort_month)
+where B.cohort_month IS NOT NULL
+ORDER BY 1, 3
