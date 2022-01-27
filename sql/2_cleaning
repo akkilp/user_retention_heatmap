@@ -5,6 +5,7 @@
     1) Include all the first purchases
     2) Add all the purchases, that exists in first purchases
     3) Turn the string date into proper date type  
+	4) Remove rows with nulls
 */
 
 
@@ -23,6 +24,9 @@ INSERT INTO purchases(purchase_date, user_id, purchase_id, venue_id, product_lin
 	LEFT JOIN temp_fp USING (user_id)  
 	WHERE  temp_fp IS NOT NULL;
 
+-- Remove all rows with nulls
+DELETE FROM purchases
+WHERE COALESCE (user_id, purchase_date, product_line) IS NULL;
 
 
 

@@ -1,6 +1,9 @@
-/* Both of the csv files are so similar, that we dont need two tables */
+/* 
+	First create tables. We dont also need two distinct tables because they are practically identical, we might aswell merge them.
+	Thus two temporary tables, and one where we are planning to use in data analysis (purchases)
+*/
 
-/* 1. Create two temporary tables */
+/* 1. Create two temporary tables, third one is the final for data analysis */
 CREATE TABLE temp_fp (
 	purchase_date		varchar(20),
 	user_id				varchar(10),
@@ -29,7 +32,7 @@ CREATE TABLE purchases (
 	first_buy			boolean
 )
 
-/* 2. Insert data to tables */
+/* 2. Copy data to tables from csvs */
 
 COPY temp_fp(purchase_date, user_id, purchase_id, venue_id, product_line)
 FROM '/var/lib/postgresql/data/pgdata/first_purchases.csv'
